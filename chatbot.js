@@ -1,17 +1,8 @@
 const chatbotConfig = window.GOODS_PANDA_CHATBOT || {};
 
-function readStoredToken() {
-    try {
-        return window.localStorage.getItem("goodsPandaHfToken") || "";
-    } catch (error) {
-        return "";
-    }
-}
-
 const apiConfig = {
-    endpoint: chatbotConfig.endpoint || "https://router.huggingface.co/v1/chat/completions",
-    model: chatbotConfig.model || "meta-llama/Llama-3.1-8B-Instruct:cerebras",
-    apiKey: chatbotConfig.apiKey || readStoredToken()
+    endpoint: chatbotConfig.endpoint || "/api/chat",
+    model: chatbotConfig.model || "meta-llama/Llama-3.1-8B-Instruct:cerebras"
 };
 
 const productCatalog = [
@@ -101,9 +92,9 @@ function includesAny(text, keywords) {
     return keywords.some((keyword) => text.includes(keyword));
 }
 
-function setStatus(text, mode) {
+function setStatus(text, badgeText) {
     statusText.textContent = text;
-    statusPill.textContent = mode === "live" ? "Live AI" : "Catalog";
+    statusPill.textContent = badgeText;
 }
 
 function scrollMessagesToBottom() {
@@ -223,27 +214,14 @@ function extractReplyText(responseData) {
 }
 
 async function requestOpenSourceReply() {
-    if (!apiConfig.apiKey) {
-        return "";
-    }
-
     const response = await fetch(apiConfig.endpoint, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiConfig.apiKey}`
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             model: apiConfig.model,
-            temperature: 0.35,
-            max_tokens: 220,
-            messages: [
-                {
-                    role: "system",
-                    content: `You are Panda Support for GOODS | PANDA.\n${storeFacts}`
-                },
-                ...conversationHistory.slice(-6)
-            ]
+            messages: conversationHistory.slice(-6)
         })
     });
 
@@ -253,7 +231,7 @@ async function requestOpenSourceReply() {
 
     const responseData = await response.json();
 
-    return extractReplyText(responseData);
+    return typeof responseData?.reply === "string" ? responseData.reply.trim() : extractReplyText(responseData);
 }
 
 function setBusyState(isBusy) {
@@ -280,7 +258,7 @@ async function handleSubmit(event) {
     input.value = "";
     autoResizeInput();
     setBusyState(true);
-    setStatus(apiConfig.apiKey ? "Generating a live answer..." : "Catalog assistant active", apiConfig.apiKey ? "live" : "catalog");
+    setStatus("Generating a live answer...", "Live AI");
 
     const typingMessage = appendMessage("assistant", "Typing...", "typing-message");
 
@@ -297,7 +275,7 @@ async function handleSubmit(event) {
             role: "assistant",
             content: reply
         });
-        setStatus(apiConfig.apiKey ? "Open-source AI connected" : "Catalog assistant active", apiConfig.apiKey ? "live" : "catalog");
+        setStatus("Open-source AI connected", "Live AI");
     } catch (error) {
         const fallbackReply = getLocalCatalogReply(userMessage);
 
@@ -307,7 +285,7 @@ async function handleSubmit(event) {
             role: "assistant",
             content: fallbackReply
         });
-        setStatus("Catalog assistant active", "catalog");
+        setStatus("Catalog assistant active", "Catalog");
         console.error(error);
     } finally {
         setBusyState(false);
@@ -346,5 +324,5 @@ launcherButton.addEventListener("click", () => {
     window.setTimeout(() => input.focus(), 350);
 });
 
-setStatus(apiConfig.apiKey ? "Open-source AI ready" : "Catalog assistant active", apiConfig.apiKey ? "live" : "catalog");
+setStatus("Cloudflare-ready AI support", "Ready");
 autoResizeInput();
