@@ -134,6 +134,70 @@
             </div>
         </div>
 
+        <div id="support" class="container">
+            <div class="support-layout">
+                <div class="support-copy">
+                    <span class="support-eyebrow">AI CUSTOMER HELP</span>
+                    <h4>Need help choosing the right product?</h4>
+                    <p>Customers can ask about featured items, compare prices, and get faster shopping guidance from a
+                        chatbot trained on your current catalog.</p>
+                    <div class="support-points">
+                        <div class="support-point">
+                            <strong>Fast product answers</strong>
+                            <span>Highlights shoes, backpacks, TV pricing, and visible categories.</span>
+                        </div>
+                        <div class="support-point">
+                            <strong>Open-source model ready</strong>
+                            <span>Connects to a Hugging Face-hosted open model when you add your API token.</span>
+                        </div>
+                        <div class="support-point">
+                            <strong>Fallback catalog mode</strong>
+                            <span>Still replies with store data even before the live AI key is connected.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chatbot-card">
+                    <div class="chatbot-topbar">
+                        <div>
+                            <h5>Panda Support</h5>
+                            <p id="chatbot-status">Catalog assistant active</p>
+                        </div>
+                        <span class="chatbot-pill">Online</span>
+                    </div>
+
+                    <div id="chatbot-messages" class="chatbot-messages" aria-live="polite">
+                        <div class="chatbot-message bot-message">
+                            Hi, I can help with shoes, backpacks, TV details, price comparisons, and category
+                            questions. Ask me anything about the store.
+                        </div>
+                    </div>
+
+                    <div class="chatbot-suggestions" aria-label="Suggested questions">
+                        <button type="button" class="chatbot-chip" data-prompt="Show me shoes under $800">
+                            Shoes under $800
+                        </button>
+                        <button type="button" class="chatbot-chip" data-prompt="Compare the backpacks for me">
+                            Compare backpacks
+                        </button>
+                        <button type="button" class="chatbot-chip" data-prompt="What categories are available here?">
+                            Browse categories
+                        </button>
+                    </div>
+
+                    <form id="chatbot-form" class="chatbot-form">
+                        <label class="sr-only" for="chatbot-input">Ask Panda Support</label>
+                        <textarea id="chatbot-input" name="message" rows="1"
+                            placeholder="Ask about price, products, or categories..." required></textarea>
+                        <button type="submit" id="chatbot-send">Send</button>
+                    </form>
+
+                    <p class="chatbot-note">Powered by the catalog, with optional open-source AI replies via Hugging
+                        Face.</p>
+                </div>
+            </div>
+        </div>
+
         <div id="contact" class="container">
             <div class="contact-box">
                 <h4>LET'S STAY IN TOUCH</h4>
@@ -146,7 +210,18 @@
         </div>
     </div>
 
+    <button type="button" id="chatbot-launcher" class="chatbot-launcher" aria-label="Jump to AI customer help">
+        Ask Panda
+    </button>
 
+    <script>
+        window.GOODS_PANDA_CHATBOT = {
+            endpoint: "https://router.huggingface.co/v1/chat/completions",
+            model: "meta-llama/Llama-3.1-8B-Instruct:cerebras",
+            apiKey: ""
+        };
+    </script>
+    <script src="chatbot.js"></script>
 
 </body>
 
